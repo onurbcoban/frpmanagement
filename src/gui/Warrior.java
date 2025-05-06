@@ -1,4 +1,4 @@
-package frpmanagement;
+package gui;
 
 public class Warrior extends Character implements Levelable {
     public Warrior(String name) {
@@ -9,8 +9,9 @@ public class Warrior extends Character implements Levelable {
     public void levelUp() {
         int newLevel = getLevel() + 1;
         setLevel(newLevel);
-        setExperience(0);
         System.out.println(getName() + " leveled up to " + newLevel);
     }
+
 }
+
 

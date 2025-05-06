@@ -1,4 +1,4 @@
-package frpmanagement;
+package gui;
 
 public abstract class Character {
     private String name;
@@ -21,8 +21,24 @@ public abstract class Character {
     public int getGold() { return gold; }
 
     public void gainGold(int amount) { gold += amount; }
-    public void gainXP(int xp) { experience += xp; }
+    public void gainXP(int xp) {
+        experience += xp;
+
+        // Her 200 XP'de otomatik level up
+        while (experience >= 200) {
+            if (this instanceof Levelable) {
+                ((Levelable) this).levelUp();
+            }
+            experience -= 200;
+        }
+    }
+
 
     protected void setLevel(int level) { this.level = level; }
     protected void setExperience(int experience) { this.experience = experience; }
+
+    @Override
+    public String toString() {
+        return name + " (Lv " + level + ")";
+    }
 }

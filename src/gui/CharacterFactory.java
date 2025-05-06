@@ -1,4 +1,4 @@
-package frpmanagement;
+package gui;
 
 public class CharacterFactory {
     public static Character createCharacter(String type, String name) {
@@ -10,4 +10,5 @@ public class CharacterFactory {
         }
     }
 }
+
 
