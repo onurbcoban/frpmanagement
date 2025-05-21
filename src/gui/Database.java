@@ -1,12 +1,13 @@
 package gui;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// SQLite veritabanı işlemlerini yöneten yardımcı sınıf
 public class Database {
     private static final String URL = "jdbc:sqlite:characters.db";
 
+    // Uygulama başlarken tablo yoksa oluşturur
     public static void initialize() {
         try (Connection conn = DriverManager.getConnection(URL);
              Statement stmt = conn.createStatement()) {
@@ -23,7 +24,27 @@ public class Database {
             e.printStackTrace();
         }
     }
+    
+    public static void updateCharacter(Character c) {
+        String sql = "UPDATE characters SET level = ?, experience = ?, gold = ? WHERE name = ?";
 
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, c.getLevel());
+            pstmt.setInt(2, c.getExperience());
+            pstmt.setInt(3, c.getGold());
+            pstmt.setString(4, c.getName());
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // Karakter veritabanına eklenir
     public static void saveCharacter(Character character, String classType) {
         String sql = "INSERT INTO characters (name, class, level, experience, gold) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -36,17 +57,16 @@ public class Database {
             pstmt.setInt(5, character.getGold());
             pstmt.executeUpdate();
 
-            System.out.println("Veritabanına kaydedildi: " + character.getName());
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    // Veritabanındaki tüm karakterleri liste olarak döner
     public static List<Character> getAllCharacters() {
         List<Character> list = new ArrayList<>();
-
         String sql = "SELECT * FROM characters";
+
         try (Connection conn = DriverManager.getConnection(URL);
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -61,9 +81,9 @@ public class Database {
                 Character c = CharacterFactory.createCharacter(classType, name);
                 c.setLevel(level);
                 c.setExperience(xp);
-                c.gainGold(gold - 100); // Başlangıç gold 100 kabul edildi
-
+                c.setGold(gold);
                 list.add(c);
+
             }
 
         } catch (SQLException e) {
@@ -72,28 +92,32 @@ public class Database {
 
         return list;
     }
+
+    // Belirtilen isme sahip karakteri veritabanından siler
     public static void deleteCharacter(String name) {
         String sql = "DELETE FROM characters WHERE name = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
             pstmt.executeUpdate();
-            System.out.println("Silindi: " + name);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
+    // Karakterin XP, level ve gold değerlerini sıfırlar
     public static void resetCharacter(String name) {
         String sql = "UPDATE characters SET level = 1, experience = 0, gold = 100 WHERE name = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
             pstmt.executeUpdate();
-            System.out.println("Sıfırlandı: " + name);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
 }
+
+
+
+		

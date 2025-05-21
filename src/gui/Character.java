@@ -1,5 +1,6 @@
 package gui;
 
+// Karakterin temel soyut sınıfı. Tüm karakter tipleri buradan türetilir.
 public abstract class Character {
     private String name;
     private int level;
@@ -13,18 +14,23 @@ public abstract class Character {
         this.gold = 100;
     }
 
+    // Alt sınıflar seviye atlama davranışını kendi içinde tanımlar
     public abstract void levelUp();
 
+    // Getter metodları
     public String getName() { return name; }
     public int getLevel() { return level; }
     public int getExperience() { return experience; }
     public int getGold() { return gold; }
 
-    public void gainGold(int amount) { gold += amount; }
+    // Gold miktarını artırır
+    public void gainGold(int amount) {
+        gold += amount;
+    }
+
+    // XP eklenir, her 200 XP'de otomatik level up yapılır
     public void gainXP(int xp) {
         experience += xp;
-
-        // Her 200 XP'de otomatik level up
         while (experience >= 200) {
             if (this instanceof Levelable) {
                 ((Levelable) this).levelUp();
@@ -33,12 +39,24 @@ public abstract class Character {
         }
     }
 
+    // Public setter'lar (veritabanından değerleri yüklemek için erişilebilir olmalı)
+ // Character.java
+    public void setLevel(int level) {
+        this.level = level;
+    }
 
-    protected void setLevel(int level) { this.level = level; }
-    protected void setExperience(int experience) { this.experience = experience; }
+    public void setExperience(int experience) {
+        this.experience = experience;
+    }
 
+    public void setGold(int gold) {
+        this.gold = gold;
+    }
+
+
+    // ComboBox’ta gösterilecek string temsil
     @Override
     public String toString() {
-        return name + " (Lv " + level + ")";
+        return name;
     }
 }

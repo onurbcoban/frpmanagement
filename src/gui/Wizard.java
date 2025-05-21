@@ -1,7 +1,7 @@
 package gui;
-//Warrior sınıfı, karakter sınıfını genişletir ve seviye atlama davranışını tanımlar
-public class Warrior extends Character implements Levelable {
- public Warrior(String name) {
+//Wizard sınıfı, karakter sınıfını genişletir ve seviye atlama davranışını tanımlar
+public class Wizard extends Character implements Levelable {
+ public Wizard(String name) {
      super(name);
  }
 
@@ -13,7 +13,3 @@ public class Warrior extends Character implements Levelable {
      System.out.println(getName() + " leveled up to " + newLevel);
  }
 }
-
-
-
-
