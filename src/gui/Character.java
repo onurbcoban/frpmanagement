@@ -1,11 +1,15 @@
+// Character.java (güncel hali)
 package gui;
 
-// Karakterin temel soyut sınıfı. Tüm karakter tipleri buradan türetilir.
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class Character {
     private String name;
     private int level;
     private int experience;
     private int gold;
+    private List<Item> inventory = new ArrayList<>();
 
     public Character(String name) {
         this.name = name;
@@ -14,21 +18,20 @@ public abstract class Character {
         this.gold = 100;
     }
 
-    // Alt sınıflar seviye atlama davranışını kendi içinde tanımlar
     public abstract void levelUp();
 
-    // Getter metodları
     public String getName() { return name; }
     public int getLevel() { return level; }
     public int getExperience() { return experience; }
     public int getGold() { return gold; }
+    public List<Item> getInventory() { return inventory; }
 
-    // Gold miktarını artırır
-    public void gainGold(int amount) {
-        gold += amount;
-    }
+    public void setLevel(int level) { this.level = level; }
+    public void setExperience(int experience) { this.experience = experience; }
+    public void setGold(int gold) { this.gold = gold; }
 
-    // XP eklenir, her 200 XP'de otomatik level up yapılır
+    public void gainGold(int amount) { gold += amount; }
+
     public void gainXP(int xp) {
         experience += xp;
         while (experience >= 200) {
@@ -39,22 +42,14 @@ public abstract class Character {
         }
     }
 
-    // Public setter'lar (veritabanından değerleri yüklemek için erişilebilir olmalı)
- // Character.java
-    public void setLevel(int level) {
-        this.level = level;
+    public void addItem(Item item) {
+        inventory.add(item);
     }
 
-    public void setExperience(int experience) {
-        this.experience = experience;
+    public void removeItem(Item item) {
+        inventory.remove(item);
     }
 
-    public void setGold(int gold) {
-        this.gold = gold;
-    }
-
-
-    // ComboBox’ta gösterilecek string temsil
     @Override
     public String toString() {
         return name;
