@@ -1,19 +1,17 @@
+// Warrior.java
 package gui;
-//Warrior sınıfı, karakter sınıfını genişletir ve seviye atlama davranışını tanımlar
+
+// OOP: Inheritance – Warrior, Character sınıfından miras alır
+// OOP: Polymorphism – levelUp metodu Warrior'a özgü şekilde override edilir
 public class Warrior extends Character implements Levelable {
- public Warrior(String name) {
-     super(name);
- }
+    public Warrior(String name) {
+        super(name);
+    }
 
- // Seviye artırılır. XP sıfırlanmaz çünkü üst sınıf XP düşümünü yönetiyor.
- @Override
- public void levelUp() {
-     int newLevel = getLevel() + 1;
-     setLevel(newLevel);
-     System.out.println(getName() + " leveled up to " + newLevel);
- }
+    @Override
+    public void levelUp() {
+        int newLevel = getLevel() + 1;
+        setLevel(newLevel);
+        System.out.println(getName() + " leveled up to " + newLevel);
+    }
 }
-
-
-
-

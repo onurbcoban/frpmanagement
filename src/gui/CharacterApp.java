@@ -1,3 +1,4 @@
+// CharacterApp.java
 package gui;
 
 import javafx.application.Application;
@@ -7,10 +8,12 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+// JavaFX arayüzünü yöneten ana sınıf
 public class CharacterApp extends Application {
 
-    private Character currentCharacter;
+    private Character currentCharacter; // Şu an seçili olan karakter
 
+    // Arayüz bileşenleri
     private Label infoLabel = new Label("No character selected.");
     private Label levelLabel = new Label("Level: ");
     private Label goldLabel = new Label("Gold: ");
@@ -26,6 +29,7 @@ public class CharacterApp extends Application {
     private Button deleteButton = new Button("Delete Character");
     private Button resetButton = new Button("Reset Character");
 
+    // Envanter ve item işlemleri
     private ListView<Item> inventoryList = new ListView<>();
     private TextField itemNameField = new TextField();
     private TextField itemValueField = new TextField();
@@ -35,6 +39,7 @@ public class CharacterApp extends Application {
     private Button removeItemButton = new Button("Remove Item");
     private ComboBox<Item> itemSelectBox = new ComboBox<>();
 
+    // Başlangıçta bazı alanlara ipucu eklenir
     {
         itemNameField.setPromptText("Item Name");
         itemValueField.setPromptText("Item Value");
@@ -42,14 +47,16 @@ public class CharacterApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        Database.initialize();
+        Database.initialize(); // Veritabanı tabloları oluşturulur
 
+        // Arayüz bileşenleri hazırlanır
         nameField.setPromptText("Character Name");
         classChoice.getItems().addAll("Warrior", "Wizard", "Rogue");
         classChoice.setValue("Warrior");
         characterList.getItems().addAll(Database.getAllCharacters());
         itemSelectBox.getItems().addAll(Database.getAllItems());
 
+        // Karakter oluşturma işlemi
         createButton.setOnAction(e -> {
             String name = nameField.getText();
             String type = classChoice.getValue();
@@ -66,11 +73,13 @@ public class CharacterApp extends Application {
             updateInfo();
         });
 
+        // Karakter seçim işlemi
         characterList.setOnAction(e -> {
             currentCharacter = characterList.getValue();
             updateInfo();
         });
 
+        // XP ekleme
         addXPButton.setOnAction(e -> {
             if (currentCharacter != null) {
                 currentCharacter.gainXP(50);
@@ -79,6 +88,7 @@ public class CharacterApp extends Application {
             }
         });
 
+        // Gold ekleme
         addGoldButton.setOnAction(e -> {
             if (currentCharacter != null) {
                 currentCharacter.gainGold(50);
@@ -87,6 +97,7 @@ public class CharacterApp extends Application {
             }
         });
 
+        // Manuel seviye atlama (Levelable interface kontrolü)
         levelUpButton.setOnAction(e -> {
             if (currentCharacter instanceof Levelable) {
                 ((Levelable) currentCharacter).levelUp();
@@ -95,6 +106,7 @@ public class CharacterApp extends Application {
             }
         });
 
+        // Karakter silme işlemi
         deleteButton.setOnAction(e -> {
             if (currentCharacter != null) {
                 Database.deleteCharacter(currentCharacter.getName());
@@ -109,6 +121,7 @@ public class CharacterApp extends Application {
             }
         });
 
+        // Karakter resetleme
         resetButton.setOnAction(e -> {
             if (currentCharacter != null) {
                 String name = currentCharacter.getName();
@@ -121,6 +134,7 @@ public class CharacterApp extends Application {
             }
         });
 
+        // Item satın alma
         buyItemButton.setOnAction(e -> {
             if (currentCharacter != null) {
                 Item selected = itemSelectBox.getValue();
@@ -138,6 +152,7 @@ public class CharacterApp extends Application {
             }
         });
 
+        // Item satma
         sellItemButton.setOnAction(e -> {
             if (currentCharacter != null) {
                 Item selected = inventoryList.getSelectionModel().getSelectedItem();
@@ -151,6 +166,7 @@ public class CharacterApp extends Application {
             }
         });
 
+        // Yeni item ekleme (veritabanına)
         addItemButton.setOnAction(e -> {
             try {
                 String name = itemNameField.getText();
@@ -167,17 +183,19 @@ public class CharacterApp extends Application {
             }
         });
 
+        // Karakterin envanterinden item kaldırma
         removeItemButton.setOnAction(e -> {
-            if (currentCharacter != null) {
-                Item selected = inventoryList.getSelectionModel().getSelectedItem();
-                if (selected != null) {
-                    currentCharacter.removeItem(selected);
-                    Database.removeItemFromCharacter(currentCharacter.getName(), selected.getName());
-                    updateInfo();
-                }
+            Item selected = itemSelectBox.getValue();
+            if (selected != null) {
+                Database.deleteItemCompletely(selected.getName()); // veritabanından tamamen sil
+                itemSelectBox.getItems().clear();
+                itemSelectBox.getItems().addAll(Database.getAllItems()); // güncelle
+                infoLabel.setText("Item deleted from database.");
             }
         });
 
+
+        // Arayüz düzeni
         HBox topButtons = new HBox(10, addXPButton, addGoldButton);
         HBox bottomButtons = new HBox(10, resetButton, deleteButton);
 
@@ -187,8 +205,8 @@ public class CharacterApp extends Application {
 
         VBox itemBox = new VBox(10,
                 new Label("Character Inventory:"), inventoryList,
-                new Label("Buy/Sell Existing Item:"), itemSelectBox, buyItemButton, sellItemButton,
-                new Label("Add/Remove Item:"), itemNameField, itemValueField, addItemButton, removeItemButton);
+                new Label("Buy/Sell/Remove Existing Item:"), itemSelectBox, buyItemButton, sellItemButton, removeItemButton,
+                new Label("Add Item:"), itemNameField, itemValueField, addItemButton);
         itemBox.setPadding(new Insets(10));
 
         HBox mainLayout = new HBox(20, new VBox(15, createBox, characterBox, infoBox), itemBox);
@@ -200,6 +218,7 @@ public class CharacterApp extends Application {
         stage.show();
     }
 
+    // Arayüz bilgilerini güncelleyen yardımcı metod
     private void updateInfo() {
         if (currentCharacter != null) {
             infoLabel.setText("Name: " + currentCharacter.getName() +

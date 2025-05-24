@@ -1,17 +1,22 @@
+// Database.java
 package gui;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// SQLite işlemlerini yöneten yardımcı sınıf
+// OOP: Separation of Concerns – Veritabanı işlemleri bu sınıf ile izole edilmiştir
 public class Database {
     private static final String URL = "jdbc:sqlite:characters.db";
 
+    // Veritabanını başlatır ve 3 tabloyu oluşturur
     public static void initialize() {
+        // Exception Handling – SQL hatalarını yakalamak için try-catch kullanılır
         try (Connection conn = DriverManager.getConnection(URL);
              Statement stmt = conn.createStatement()) {
 
-            // Karakter tablosu
+            // OOP: Single Responsibility – sadece tablo oluşturma işlemi yapar
             String characterSql = "CREATE TABLE IF NOT EXISTS characters (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "name TEXT," +
@@ -21,24 +26,23 @@ public class Database {
                     "gold INTEGER)";
             stmt.executeUpdate(characterSql);
 
-            // Item tablosu
             String itemSql = "CREATE TABLE IF NOT EXISTS items (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                     "name TEXT UNIQUE," +
                     "value INTEGER)";
             stmt.executeUpdate(itemSql);
 
-            // Karakter-Item ilişki tablosu
             String inventorySql = "CREATE TABLE IF NOT EXISTS character_items (" +
                     "character_name TEXT," +
                     "item_name TEXT)";
             stmt.executeUpdate(inventorySql);
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Exception Handling – hata detayları konsola yazılır
         }
     }
 
+    // Karakter ekleme işlemi
     public static void saveCharacter(Character character, String classType) {
         String sql = "INSERT INTO characters (name, class, level, experience, gold) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -50,10 +54,11 @@ public class Database {
             pstmt.setInt(5, character.getGold());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Exception Handling
         }
     }
 
+    // Karakter güncelleme işlemi
     public static void updateCharacter(Character c) {
         String sql = "UPDATE characters SET level = ?, experience = ?, gold = ? WHERE name = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -64,10 +69,11 @@ public class Database {
             pstmt.setString(4, c.getName());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Exception Handling
         }
     }
 
+    // Tüm karakterleri veritabanından okur
     public static List<Character> getAllCharacters() {
         List<Character> list = new ArrayList<>();
         String sql = "SELECT * FROM characters";
@@ -81,21 +87,22 @@ public class Database {
                 int xp = rs.getInt("experience");
                 int gold = rs.getInt("gold");
 
-                Character c = CharacterFactory.createCharacter(classType, name);
+                Character c = CharacterFactory.createCharacter(classType, name); // OOP: Factory Pattern
                 c.setLevel(level);
                 c.setExperience(xp);
                 c.setGold(gold);
 
-                // Envanteri yükle
+                // Karakterin envanteri yüklenir
                 c.getInventory().addAll(getInventoryForCharacter(name));
                 list.add(c);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Exception Handling
         }
         return list;
     }
 
+    // Karakter ve ilişkili itemları siler
     public static void deleteCharacter(String name) {
         try (Connection conn = DriverManager.getConnection(URL)) {
             try (PreparedStatement pstmt1 = conn.prepareStatement("DELETE FROM characters WHERE name = ?")) {
@@ -107,10 +114,11 @@ public class Database {
                 pstmt2.executeUpdate();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Exception Handling
         }
     }
 
+    // Karakterin temel özelliklerini sıfırlar
     public static void resetCharacter(String name) {
         String sql = "UPDATE characters SET level = 1, experience = 0, gold = 100 WHERE name = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -118,12 +126,13 @@ public class Database {
             pstmt.setString(1, name);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Exception Handling
         }
     }
 
-    // ITEM VERİ TABANI FONKSİYONLARI
+    // ITEM FONKSİYONLARI
 
+    // Yeni item veritabanına eklenir
     public static void saveItem(Item item) {
         String sql = "INSERT OR IGNORE INTO items (name, value) VALUES (?, ?)";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -132,10 +141,11 @@ public class Database {
             pstmt.setInt(2, item.getValue());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Exception Handling
         }
     }
 
+    // Tüm itemları getirir
     public static List<Item> getAllItems() {
         List<Item> items = new ArrayList<>();
         String sql = "SELECT * FROM items";
@@ -146,11 +156,12 @@ public class Database {
                 items.add(new Item(rs.getString("name"), rs.getInt("value")));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Exception Handling
         }
         return items;
     }
 
+    // Karaktere item ataması yapar
     public static void assignItemToCharacter(String characterName, String itemName) {
         String sql = "INSERT INTO character_items (character_name, item_name) VALUES (?, ?)";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -159,10 +170,11 @@ public class Database {
             pstmt.setString(2, itemName);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Exception Handling
         }
     }
 
+    // Belirli bir karakterin itemlarını getirir
     public static List<Item> getInventoryForCharacter(String characterName) {
         List<Item> list = new ArrayList<>();
         String sql = "SELECT i.name, i.value FROM items i " +
@@ -176,11 +188,12 @@ public class Database {
                 list.add(new Item(rs.getString("name"), rs.getInt("value")));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Exception Handling
         }
         return list;
     }
 
+    // Karakterin itemını siler
     public static void removeItemFromCharacter(String characterName, String itemName) {
         String sql = "DELETE FROM character_items WHERE character_name = ? AND item_name = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -189,7 +202,25 @@ public class Database {
             pstmt.setString(2, itemName);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Exception Handling
         }
     }
+ // Veritabanındaki item'ı tamamen siler (items + character_items)
+    public static void deleteItemCompletely(String name) {
+        try (Connection conn = DriverManager.getConnection(URL)) {
+            // Önce karakterle olan ilişkiler silinir
+            try (PreparedStatement pstmt1 = conn.prepareStatement("DELETE FROM character_items WHERE item_name = ?")) {
+                pstmt1.setString(1, name);
+                pstmt1.executeUpdate();
+            }
+            // Sonra item tablosundan silinir
+            try (PreparedStatement pstmt2 = conn.prepareStatement("DELETE FROM items WHERE name = ?")) {
+                pstmt2.setString(1, name);
+                pstmt2.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // Exception Handling
+        }
+    }
+
 }

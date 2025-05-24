@@ -1,5 +1,7 @@
+//Levelable.java
 package gui;
-//Seviye atlama davranışını tanımlayan interface
+
+// OOP: Interface – Levelable arayüzü, karakterlerin seviye atlama davranışını soyutlar
 public interface Levelable {
- void levelUp();
+    void levelUp();
 }
